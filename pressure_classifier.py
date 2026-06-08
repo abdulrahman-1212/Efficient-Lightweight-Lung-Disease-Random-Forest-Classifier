@@ -109,7 +109,7 @@ def segment_breaths(df, label):
 
 def load_all_breaths():
     all_breaths = []
-    print("▶  Loading and segmenting breath cycles …")
+    print("Loading and segmenting breath cycles …")
     for label, path in DATA_FILES.items():
         df = pd.read_csv(path)
         breaths, n_spikes = segment_breaths(df, label)
@@ -161,25 +161,25 @@ def extract_pressure_features(pres: np.ndarray) -> dict:
     peep  = float(pres[0])
     dp    = pip - peep
 
-    # ── inspiratory / expiratory split ───────────────────────────────────────
+    # inspiratory / expiratory split 
     insp = pres[: pk_i + 1]
     exp  = pres[pk_i :]        # includes peak sample
 
-    # ── rise time & slope ────────────────────────────────────────────────────
+    # rise time & slope 
     rise_time  = float(pk_i) if pk_i > 0 else 1.0
     rise_slope = dp / rise_time if rise_time > 0 else 0.0
 
-    # ── AUC ──────────────────────────────────────────────────────────────────
+    #  AUC 
     trapz    = getattr(np, "trapezoid", None) or getattr(np, "trapz", None)
     p_auc    = float(trapz(np.maximum(pres, 0)))
     insp_auc = float(trapz(np.maximum(insp, 0)))
     exp_auc  = float(trapz(np.maximum(exp,  0)))
     ie_ratio = insp_auc / exp_auc if exp_auc > 1e-9 else 0.0
 
-    # ── P at 50% of inspiratory phase ────────────────────────────────────────
+    #  P at 50% of inspiratory phase 
     p_half_insp = float(insp[len(insp) // 2]) if len(insp) > 1 else 0.0
 
-    # ── decay features ───────────────────────────────────────────────────────
+    # decay features 
     if len(exp) >= 3:
         x = np.arange(len(exp), dtype=float)
 
@@ -206,7 +206,7 @@ def extract_pressure_features(pres: np.ndarray) -> dict:
     else:
         decay_rate = decay_half = exp_concavity = tau_exp = 0.0
 
-    # ── statistics ───────────────────────────────────────────────────────────
+    #  statistics 
     mean_p = float(pres.mean())
     std_p  = float(pres.std())
     rms_p  = float(np.sqrt(np.mean(pres ** 2)))
@@ -454,14 +454,14 @@ if __name__ == "__main__":
     os.makedirs(OUT_DIR,     exist_ok=True)
     os.makedirs(WEIGHTS_DIR, exist_ok=True)
 
-    # ── 1. Load data ──────────────────────────────────────────────────────────
+    # 1. Load data 
     all_breaths = load_all_breaths()
 
     plot_pressure_waveforms(all_breaths,
                             os.path.join(OUT_DIR, "pressure_waveforms.png"))
 
-    # ── 2. Feature extraction ─────────────────────────────────────────────────
-    print("▶  Extracting pressure features …")
+    # 2. Feature extraction 
+    print(" Extracting pressure features …")
     df_feats   = build_feature_df(all_breaths)
     feat_cols  = [c for c in df_feats.columns if c != "label"]
     print(f"   {len(df_feats)} samples × {len(feat_cols)} features")
@@ -471,7 +471,7 @@ if __name__ == "__main__":
     plot_feature_distributions(df_feats,
                                os.path.join(OUT_DIR, "feature_distributions.png"))
 
-    # ── 3. Train / test split ─────────────────────────────────────────────────
+    #  3. Train / test split 
     X = df_feats[feat_cols].values
     le = LabelEncoder()
     y  = le.fit_transform(df_feats["label"].values)
@@ -479,7 +479,7 @@ if __name__ == "__main__":
     X_tr, X_te, y_tr, y_te = train_test_split(
         X, y, test_size=TEST_SIZE, stratify=y, random_state=42)
 
-    print(f"\n▶  Split: {len(X_tr)} train / {len(X_te)} test "
+    print(f"\n Split: {len(X_tr)} train / {len(X_te)} test "
           f"(stratified {int((1-TEST_SIZE)*100)}/{int(TEST_SIZE*100)})")
     for i, cls in enumerate(le.classes_):
         print(f"   {cls:12s}: {np.sum(y_tr==i)} train / {np.sum(y_te==i)} test")
@@ -487,17 +487,17 @@ if __name__ == "__main__":
     plot_train_test_split(y_tr, y_te, le.classes_,
                           os.path.join(OUT_DIR, "train_test_split.png"))
 
-    # ── 4. Train & evaluate ───────────────────────────────────────────────────
-    print("\n▶  Training models …")
+    # 4. Train & evaluate 
+    print("\n  Training models …")
     models  = build_models()
     results = train_and_evaluate(models, X_tr, X_te, y_tr, y_te, le.classes_)
 
-    # ── 5. Result plots ───────────────────────────────────────────────────────
-    print("\n▶  Plotting results …")
+    # 5. Result plots 
+    print("\n  Plotting results …")
     plot_results(results, y_te, le.classes_, feat_cols,
                  os.path.join(OUT_DIR, "pressure_model_results.png"))
 
-    # ── 6. Save weights ───────────────────────────────────────────────────────
+    # 6. Save weights 
     # Pick the model with best test AUC
     best_name = max(results, key=lambda n: results[n]["auc"])
     weights = {
@@ -510,11 +510,11 @@ if __name__ == "__main__":
     with open(weights_path, "wb") as f:
         pickle.dump(weights, f)
 
-    print(f"\n✅  Done.")
+    print(f"\n  Done.")
     print(f"    Best model  : {best_name}  (AUC = {results[best_name]['auc']:.3f})")
     print(f"    Weights     : {weights_path}")
     print(f"    Output files:")
     for fname in ["pressure_waveforms.png", "feature_distributions.png",
                   "train_test_split.png", "pressure_model_results.png",
                   "pressure_features.csv"]:
-        print(f"      • {fname}")
+        print(f"      {fname}")
