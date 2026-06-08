@@ -133,7 +133,7 @@ Each line is one breath cycle. The thick line is the per-class mean. Three clear
 
 ### Distribution Comparison — Top 6 Features
 
-![Distribution comparison](distribution_comparison.png)
+![Distribution comparison](results/feature_distribution.png)
 
 
 **Resolution:** The pressure-based pipeline was developed as the primary model, using the raw Pressure column directly from the sensor — no normalization mismatch is possible.
@@ -144,7 +144,7 @@ Each line is one breath cycle. The thick line is the per-class mean. Three clear
 
 The 98 real pressure breath cycles were split **75 / 25 stratified by class**, ensuring all three classes are proportionally represented in both sets.
 
-![Train test split](train_test_split.png)
+![Train test split](results/train_test_split.png)
 
 | Class | Train (75%) | Test (25%) |
 |---|---|---|
@@ -163,7 +163,7 @@ The 98 real pressure breath cycles were split **75 / 25 stratified by class**, e
 
 #### Confusion Matrices
 
-![Pressure model results](pressure_model_results.png)
+![Pressure model results](results/pressure_model_results.png)
 
 The top row shows confusion matrices for each model on the 25 held-out test breaths. The bottom row shows the top 15 feature importances. `pip`, `tau_exp`, and `decay_rate` dominate — consistent with the physical observations in Section 4.
 
