@@ -1,0 +1,26 @@
+name: bvm_vent
+
+channels:
+  - defaults
+
+dependencies:
+  # ── Python ────────────────────────────────────────────────────────────────
+  - python=3.11          # 3.11 is the safest target for PySide6 + sklearn 1.x
+
+  # ── Core scientific stack ─────────────────────────────────────────────────
+  - numpy>=2.0
+  - pandas>=2.0
+  - scipy>=1.11
+
+  # ── ML ────────────────────────────────────────────────────────────────────
+  - scikit-learn>=1.4
+
+  # ── Plotting ──────────────────────────────────────────────────────────────
+  - matplotlib>=3.8
+
+
+
+  # ── Pip-only extras (not on conda) ────────────────────────────────────────
+  - pip
+  - pip:
+      - pyside6-addons    # QtCharts + QtVirtualKeyboard wheels (if conda build missing)
