@@ -3,22 +3,21 @@
 **Project:** BVM Emergency Ventilator — Automated Patient State Detection  
 **Goal:** Classify patients as **Normal**, **Obstructive**, or **Restrictive** in real time from ventilator waveform data  
 **Models:** Random Forest · Gradient Boosting  
-**Data:** Synthetic flow waveforms + Real balloon experiment pressure recordings
+**Data:** Real balloon experiment pressure recordings
 
 ---
 
 ## Table of Contents
 
 1. [Pipeline Overview](#1-pipeline-overview)
-2. [Synthetic Flow Data Generation](#2-synthetic-flow-data-generation)
-3. [Noise Augmentation](#3-noise-augmentation)
-4. [Real Experimental Data — Pressure Waveforms](#4-real-experimental-data--pressure-waveforms)
-5. [Feature Engineering](#5-feature-engineering)
-6. [Distribution Check — Synthetic vs Real](#6-distribution-check--synthetic-vs-real)
-7. [Train / Test Split](#7-train--test-split)
-8. [Model Performance](#8-model-performance)
-9. [Key Findings](#9-key-findings)
-10. [File Reference](#10-file-reference)
+2. [Noise Augmentation](#3-noise-augmentation)
+3. [Real Experimental Data — Pressure Waveforms](#4-real-experimental-data--pressure-waveforms)
+4. [Feature Engineering](#5-feature-engineering)
+5. [Distribution Check — Synthetic vs Real](#6-distribution-check--synthetic-vs-real)
+6. [Train / Test Split](#7-train--test-split)
+7. [Model Performance](#8-model-performance)
+8. [Key Findings](#9-key-findings)
+9. [File Reference](#10-file-reference)
 
 ---
 
@@ -26,12 +25,6 @@
 
 ```
 Raw Data
-   │
-   ├── Synthetic (flow-based)          ── respiratory_classification.py
-   │     ├── Generate trapezoidal waveforms per class
-   │     ├── Augment with realistic noise
-   │     ├── Extract 27 waveform features
-   │     └── Train RF + GB → respiratory_models.pkl
    │
    └── Real Experiment (pressure-based) ── pressure_classifier.py
          ├── Load CSVs (normal / obsruct / resrictive)
@@ -45,7 +38,7 @@ Raw Data
                          ventilator_core.py → dashboard.qml
 ```
 
-Two parallel pipelines were developed. The **pressure-based model** trained on real balloon data is deployed on the device. The **flow-based model** trained on synthetic data serves as a fallback when the pressure sensor is unavailable.
+Two parallel pipelines were developed. The **pressure-based model** trained on real balloon data is deployed on the device.
 
 
 ---
@@ -100,14 +93,6 @@ Each line is one breath cycle. The thick line is the per-class mean. Three clear
 ---
 
 ## 5. Feature Engineering
-
-### Flow-Based Features (27 features — synthetic pipeline)
-
-| Group | Features |
-|---|---|
-| Time-domain (14) | Peak insp/exp flow, I:E ratio, insp/exp duration, AUC insp/exp, mean, std, skewness, kurtosis, RMS, zero-crossing rate, waveform asymmetry |
-| Frequency-domain (8) | Dominant frequency, spectral entropy, PSD low/mid/high bands, peak FFT magnitude, mean power, spectral centroid |
-| Envelope (5) | Hilbert envelope mean, std, max, rise rate, decay rate |
 
 ### Pressure-Based Features (20 features — real data pipeline)
 
