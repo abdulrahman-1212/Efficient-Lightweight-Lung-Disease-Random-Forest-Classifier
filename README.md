@@ -47,22 +47,10 @@ Raw Data
 
 Two parallel pipelines were developed. The **pressure-based model** trained on real balloon data is deployed on the device. The **flow-based model** trained on synthetic data serves as a fallback when the pressure sensor is unavailable.
 
----
-
-## 2. Synthetic Flow Data Generation
-
-Three classes of flow waveforms were generated to simulate realistic spirometry patterns. Each waveform uses a **trapezoidal** (square-wave) shape — rapid rise, flat plateau, fall — which matches real ventilator flow profiles more accurately than the sine-wave approximation.
-
-| Class | I:E Ratio | Amplitude | Key Feature |
-|---|---|---|---|
-| **Normal** | 1:2 (30–38% insp) | 0.8–1.2 | Symmetric trapezoid, balanced plateau |
-| **Obstructive** | 1:3–1:4 (22–30% insp) | Insp: 0.7–1.0 / Exp: 0.3–0.6 | Scooped expiratory decay (no plateau) + wheezes |
-| **Restrictive** | ~1:2 (32–40% insp) | 0.25–0.55 | Reduced amplitude, steep rise/fall, crackles |
-
 
 ---
 
-## 3. Noise Augmentation
+## 2. Noise Augmentation
 
 All noise parameters were **measured from the real experimental recordings** (45 breath cycles across the three CSVs), not guessed. This calibration step ensures the synthetic training distribution includes the same imperfections present in real sensor data.
 
